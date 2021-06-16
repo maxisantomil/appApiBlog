@@ -1,19 +1,21 @@
 
 class PostsController < ApplicationController
+    before_action :authenticate, only: [:create,:index,:show,:update,:destroy] 
+    #si o si autentificarse con token para poder realizar los siguientes endpoint
+
     rescue_from ActiveRecord::RecordNotFound, with: :not_found 
     MAX_PAGINATION_LIMIT = 5
     
     #GET: http://localhost:3000/posts
     def index 
-        @posts= Post.limit(limit).offset(params[:offset]);
-        
-        render json: @posts
-        #render json: @posts, only: [:id,:title,:url_image,:categories,:date_creation]    
+            @posts= Post.limit(limit).offset(params[:offset]);
+            render json: @posts
+            #render json: @posts, only: [:id,:title,:url_image,:categories,:date_creation]    
     end
 
     def show
-        @post = Post.find(params[:id])
-        render json:@post,status: :ok
+            @post = Post.find(params[:id])
+            render json:@post,status: :ok
     end
   
     def new
@@ -22,8 +24,11 @@ class PostsController < ApplicationController
 
     # POST: http://localhost:3000/posts
     def create 
-        @post= Post.new(post_params)
-
+        @post= Post.create(title: params[:title],
+                            content: params[:content],
+                            url_image: params[:url_image],
+                            date_creation: params[:date_creation],
+                            user:@user) 
         if @post.save
             render json: @post, status: :created, location: @post
         else
