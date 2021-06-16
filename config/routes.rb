@@ -19,6 +19,7 @@ Rails.application.routes.draw do
  
    #resources :users, only: [:create,:destroy]
    post '/auth/sign_up',to: 'users#create' 
-   post 'users/login', to: 'users#login' 
+   post 'auth/login', to: 'authentication#login' 
+   
    get 'users/auto_login', to: 'users#auto_login'
 end
