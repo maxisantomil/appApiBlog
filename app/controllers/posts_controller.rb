@@ -9,13 +9,14 @@ class PostsController < ApplicationController
     #GET: http://localhost:3000/posts
     def index 
             @posts= Post.limit(limit).offset(params[:offset]);
-            render json: @posts
+            @posts = Post.order('date_creation DESC')
+            render json: @posts, each_serializer: PostSerializer
             #render json: @posts, only: [:id,:title,:url_image,:categories,:date_creation]    
     end
 
     def show
             @post = Post.find(params[:id])
-            render json:@post,status: :ok
+            render json:@post, serializer: SinglePostSerializer
     end
   
     def new
@@ -28,13 +29,31 @@ class PostsController < ApplicationController
                             content: params[:content],
                             url_image: params[:url_image],
                             date_creation: params[:date_creation],
-                            user:@user) 
+                            user:@user)
+
+        #-----------------CreateCategory----------------------
+        if params[:categories].blank?
+            render json: { message: "error, ingrese una categoria para el post" }
+        else
+            @categories = params[:categories].map do |category|
+                Category.create(
+                    name: category[:name],
+                )
+            end
+            @categories.each do |category|
+                @post.categories << category
+            end
+        
+        #------------------endCreateCategory-----------------
         if @post.save
             render json: @post, status: :created, location: @post
         else
             render json: @post.errors, status: unprocessable_entity
         end
+     end
     end
+
+    
 
     def edit
         @post= Post.find(params[:id])
