@@ -8,9 +8,12 @@ class PostsController < ApplicationController
     
     #GET: http://localhost:3000/posts
     def index 
-            @posts= Post.limit(limit).offset(params[:offset]);
-            @posts = Post.order('date_creation DESC')
-            render json: @posts, each_serializer: PostSerializer
+            @posts = Post.limit(limit).offset(params[:offset])
+                         .where('title LIKE ?', "%#{params[:title]}%")
+                         .order('date_creation DESC')
+                          render json: @posts, each_serializer: PostSerializer
+
+
             #render json: @posts, only: [:id,:title,:url_image,:categories,:date_creation]    
     end
 
