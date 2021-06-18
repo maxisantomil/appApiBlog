@@ -9,7 +9,7 @@ class PostsController < ApplicationController
     #GET: http://localhost:3000/posts
     def index 
             @posts = Post.limit(limit).offset(params[:offset])
-                         .where('title LIKE ?', "%#{params[:title]}%")
+                         #.where('title LIKE ?', "%#{params[:title]}%")
                          .order('date_creation DESC')
                           render json: @posts, each_serializer: PostSerializer
 
@@ -28,16 +28,17 @@ class PostsController < ApplicationController
 
     # POST: http://localhost:3000/posts
     def create 
-        @post= Post.create(title: params[:title],
-                            content: params[:content],
-                            url_image: params[:url_image],
-                            date_creation: params[:date_creation],
-                            user:@user)
-
-        #-----------------CreateCategory----------------------
+      
         if params[:categories].blank?
             render json: { message: "error, ingrese una categoria para el post" }
         else
+
+            @post= Post.create(title: params[:title],
+            content: params[:content],
+            url_image: params[:url_image],
+            date_creation: params[:date_creation],
+            user:@user)
+
             @categories = params[:categories].map do |category|
                 Category.create(
                     name: category[:name],
@@ -47,7 +48,6 @@ class PostsController < ApplicationController
                 @post.categories << category
             end
         
-        #------------------endCreateCategory-----------------
         if @post.save
             render json: @post, status: :created, location: @post
         else
@@ -55,8 +55,6 @@ class PostsController < ApplicationController
         end
      end
     end
-
-    
 
     def edit
         @post= Post.find(params[:id])
